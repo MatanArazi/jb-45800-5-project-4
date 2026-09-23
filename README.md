@@ -68,7 +68,7 @@ infra/
   postgres/init.sql        Jobs table and index
   localstack/init-s3.sh    Creates the agent-inputs bucket
 models/
-  .gitkeep                 Model directory placeholder; model binaries are ignored
+  medical_scan_classifier.pt  Bundled trained checkpoint used by the worker
 docker-compose.yml          PostgreSQL, RabbitMQ, and LocalStack services
 .env.example                Local configuration template
 package.json                npm workspaces and development scripts
@@ -125,7 +125,7 @@ queued -> running -> completed
                   -> failed -> agent.inference.failed
 ```
 
-The first worker image build can be large. The Docker worker uses CPU-only PyTorch wheels and does not need CUDA or a GPU.
+The Docker worker uses CPU-only PyTorch wheels and does not need CUDA or a GPU. The browser rejects images larger than 10 MB before upload; the API accepts up to 20 MB of base64 JSON.
 
 The services use these ports:
 
@@ -313,11 +313,11 @@ docker compose up -d --force-recreate worker
 
 ### Reset local data
 
-This removes PostgreSQL and LocalStack data volumes:
+This removes PostgreSQL and LocalStack data volumes and recreates the complete stack:
 
 ```bash
 docker compose down -v
-docker compose up -d postgres rabbitmq localstack
+docker compose up -d
 ```
 
 ## Verification
